@@ -1,0 +1,19 @@
+version: '3'
+services:
+  pgadmin4:
+    image: registry.cn-hangzhou.aliyuncs.com/powerg/pgadmin4:20240318
+    container_name: pgadmin4
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      LANG: en_US.UTF-8
+      PGADMIN_DEFAULT_EMAIL: 1570795021@qq.com
+      PGADMIN_DEFAULT_PASSWORD: gsb123456
+      PGADMIN_LISTEN_PORT: 8089
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: gsb123456
+      ALLOW_IP_RANGE: 0.0.0.0/0
+    volumes:
+      - "./servers.json:/pgadmin4/servers.json"
+    ports:
+      - "8089:8089"
