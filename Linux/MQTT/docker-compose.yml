@@ -14,9 +14,10 @@ services:
       - EMQX_DASHBOARD__LISTENER__HTTP=18083  # EMQX 管理控制台端口（企业版默认同社区版）
     ports:
       - "1883:1883"    # 主机映射：MQTT TCP 端口
+      - "8883:8883"    #  MQTT SSL/TLS (加密)
       - "8083:8083"    # 主机映射：MQTT WebSocket 端口
-      - "18083:18083"  # 主机映射：EMQX 管理控制台端口
       - "8084:8084"    # 可选：EMQX WebSocket SSL 端口（若需加密连接可保留）
+      - "18083:18083"  # 主机映射：EMQX 管理控制台端口
     networks:
       - mqtt-network
     # 可选：EMQX 企业版数据持久化（避免容器重启后配置/数据丢失）
@@ -39,4 +40,5 @@ services:
 # 自定义网络：确保 EMQX 与 MQTTX Web 可内部通信
 networks:
   mqtt-network:
+
     driver: bridge
