@@ -1,0 +1,42 @@
+version: '3.0'
+
+services:
+  # EMQX 企业版（私有阿里云镜像）
+  emqx-enterprise:
+    image: registry.cn-hangzhou.aliyuncs.com/powergopen/emqx-enterprise:6.0  # 替换为私有镜像地址
+    container_name: emqx-enterprise-broker
+    restart: always
+    environment:
+      # EMQX 企业版核心配置（6.0 版本兼容该语法，根据实际需求调整）
+      - EMQX_ALLOW_ANONYMOUS=true  # 测试环境允许匿名连接，生产环境需关闭并配置认证
+      - EMQX_LISTENER__TCP__DEFAULT=1883  # MQTT TCP 默认端口（客户端连接）
+      - EMQX_LISTENER__WS__DEFAULT=8083  # MQTT WebSocket 端口（MQTTX Web 连接用）
+      - EMQX_DASHBOARD__LISTENER__HTTP=18083  # EMQX 管理控制台端口（企业版默认同社区版）
+    ports:
+      - "1883:1883"    # 主机映射：MQTT TCP 端口
+      - "8083:8083"    # 主机映射：MQTT WebSocket 端口
+      - "18083:18083"  # 主机映射：EMQX 管理控制台端口
+      - "8084:8084"    # 可选：EMQX WebSocket SSL 端口（若需加密连接可保留）
+    networks:
+      - mqtt-network
+    # 可选：EMQX 企业版数据持久化（避免容器重启后配置/数据丢失）
+    volumes:
+      - ./emqx-data:/opt/emqx/data  # 本地目录映射 EMQX 数据目录
+      - ./emqx-log:/opt/emqx/log    # 本地目录映射 EMQX 日志目录
+
+  # MQTTX Web 客户端（保持原有配置，用于连接 EMQX 企业版）
+  mqttx-web:
+    image: registry.cn-hangzhou.aliyuncs.com/powergopen/mqttx-web:5.0
+    container_name: mqttx-web-client
+    restart: always
+    ports:
+      - "8080:80"  # 浏览器访问端口：http://localhost:8080
+    depends_on:
+      - emqx-enterprise  # 确保 EMQX 企业版先启动
+    networks:
+      - mqtt-network
+
+# 自定义网络：确保 EMQX 与 MQTTX Web 可内部通信
+networks:
+  mqtt-network:
+    driver: bridge
